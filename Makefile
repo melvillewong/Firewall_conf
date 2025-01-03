@@ -1,36 +1,28 @@
-# Variable
-CC = gcc                   # Compiler
-CFLAGS = -Wall -Werror -g  # Compiler flags (e.g., -Wall for all warnings, -g for debugging info)
-# LDFLAGS =                # Linker flags (if needed)
+CFLAGS = -Wall -Werror -g
+LDFLAGS = -lcriterion
 
-# Targets and rules
-# List of source files
-SRC = main.c             # Add more .c files here (e.g., helper.c)
+all: main.out test.out
 
-# List of object files (this will automatically convert .c files to .o files)
-OBJ = $(SRC:.c=.o)
+MAIN_SRC = src/main.c src/server.c
+MAIN_OBJ = $(MAIN_SRC:.c=.o)
 
-# Default target
-all: main
+TEST_SRC = tests/test.c src/server.c
+TEST_OBJ = $(TEST_SRC:.c=.o)
 
-# Rule to build the final executable from object files
-main: $(OBJ)
-	$(CC) $(CFLAGS) -o main $(OBJ)
+main.out: $(MAIN_OBJ)
+	gcc -o $@ $^
 
-# Rule to compile .c files into .o files
-%.o: %.c
-	$(CC) $(CFLAGS) -c $<
+test.out: $(TEST_OBJ)
+	gcc -o $@ $^ $(LDFLAGS)
 
-# Clean up object files and executable
+src/%.o: src/%.c
+	gcc $(CFLAGS) -c $< -o $@
 
-run: main
-	./main
+tests/%.o: tests/%.c
+	gcc $(CFLAGS) -c $< -o $@
 
 static-check:
 	cppcheck --enable=all --suppress=missingIncludeSystem .
 
-# valgrind: main
-# 	valgrind ./main
-
 clean:
-	rm -f $(OBJ) main
+	rm src/*.o test/*.o main.out test.out

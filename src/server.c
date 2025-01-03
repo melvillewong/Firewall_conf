@@ -1,27 +1,77 @@
+#include "../include/server.h"
+#include <regex.h>
 #include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define BUFFERLENGTH 256
-
 char *input = NULL;
 
-char *process_cmd(char *request);
-void interactive_mode();
-void cleanup(int sig);
-
-int main(int argc, char **argv)
+int check_ip(const char *ip)
 {
-    if (argc != 2) return -1;
+    regex_t regex;
+    int ret;
+    const char *pattern = "^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)"
+                          "\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)"
+                          "\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)"
+                          "\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)$";
 
-    if (strncmp(argv[1], "-i", strlen(argv[1])) == 0)
+    // compile regex
+    ret = regcomp(&regex, pattern, REG_EXTENDED);
+    if (ret)
     {
-        interactive_mode();
+        fprintf(stderr, "Could not compile regex\n");
+        return 0;
     }
 
-    return 0;
+    // execute regex matching
+    ret = regexec(&regex, ip, 0, NULL, 0);
+    regfree(&regex);
+
+    if (!ret)
+    {
+        printf("Valid IP\n");
+    }
+    else
+    {
+        printf("Invalid IP\n");
+        return 0;
+    }
+
+    return 1;
+}
+
+int check_port(const char *port)
+{
+    regex_t regex;
+    int ret;
+    const char *pattern = "(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]"
+                          "{3}|[1-9][0-9]{0,3}|0)";
+
+    // compile regex
+    ret = regcomp(&regex, pattern, REG_EXTENDED);
+    if (ret)
+    {
+        fprintf(stderr, "Could not compile regex\n");
+        return 0;
+    }
+
+    // execute regex matching
+    ret = regexec(&regex, port, 0, NULL, 0);
+    regfree(&regex);
+
+    if (!ret)
+    {
+        printf("Valid Port\n");
+    }
+    else
+    {
+        printf("Invalid Port\n");
+        return 0;
+    }
+
+    return 1;
 }
 
 char *process_cmd(char *request)
@@ -30,7 +80,6 @@ char *process_cmd(char *request)
     // char *cmd_argv = NULL;
     // char *result = (char *)malloc(BUFFERLENGTH);
 
-    printf("strlen: %ld", strlen(request));
     request[strcspn(request, "\n")] = '\0';
 
     if (strlen(request) == 0)
