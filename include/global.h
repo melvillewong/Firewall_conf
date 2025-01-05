@@ -3,11 +3,11 @@
 
 #define BUFFERLENGTH 256
 
-enum Network
+typedef enum
 {
     IP,
     PORT,
-};
+} Network_t;
 
 extern char *input;
 extern char *result;

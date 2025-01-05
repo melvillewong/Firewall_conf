@@ -12,9 +12,9 @@ int check_ip(const char *ip)
     regex_t regex;
     int ret;
     const char *pattern =
-        "/^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)\\.){3}(25[0-5]|2[0-4]"
+        "^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0)\\.){3}(25[0-5]|2[0-4]"
         "[0-9]|1[0-9]{2}|[1-9][0-9]?|0)(-((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]["
-        "0-9]?|0)\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0))?$/gm";
+        "0-9]?|0)\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?|0))?$";
 
     // compile regex
     ret = regcomp(&regex, pattern, REG_EXTENDED);
@@ -24,10 +24,12 @@ int check_ip(const char *ip)
         return 0;
     }
 
+    printf("ip: [%s]\n", ip);
     // execute regex matching
     ret = regexec(&regex, ip, 0, NULL, 0);
     regfree(&regex);
 
+    printf("ret: %d\n", ret);
     if (!ret)
     {
         printf("Valid IP\n");
@@ -47,11 +49,11 @@ int check_port(const char *port)
     regex_t regex;
     int ret;
     const char *pattern =
-        "/(^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{"
+        "(^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{"
         "0,4}|[1-9][0-9]{0,3}|0)-(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-"
         "4][0-9]{3}|[1-5][0-9]{0,4}|[1-9][0-9]{0,3}|0)$|^(6553[0-5]|655[0-2][0-"
-        "9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{0,4}|[1-9][0-9]{0,3}|0)$)"
-        "/gm";
+        "9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{0,4}|[1-9][0-9]{0,3}|0)$"
+        ")";
 
     // compile regex
     ret = regcomp(&regex, pattern, REG_EXTENDED);
@@ -139,10 +141,12 @@ int check_port_range(char *port1, char *port2)
     return 1;
 }
 
-int is_valid_ip_port(char *value, enum Network ip_or_port)
+int is_valid_ip_port(char *value, Network_t ip_or_port)
 {
     char *fst_value = NULL;
     char *scd_value = NULL;
+
+    printf("value: [%s]\n", value);
 
     // check format
     if (ip_or_port == IP)
@@ -153,6 +157,7 @@ int is_valid_ip_port(char *value, enum Network ip_or_port)
     {
         if (!check_port(value)) return 0;
     }
+    printf("passed format checking\n");
 
     // separate if ranged
     if (strchr(value, '-'))
