@@ -1,15 +1,17 @@
 CFLAGS = -Wall -Werror -g
 LDFLAGS = -lcriterion
 
-all: main.out test.out
+all: server.out test.out
 
-MAIN_SRC = src/main.c src/server.c
+FUNC_SRC = $(wildcard src/*.c)
+
+MAIN_SRC = server.c $(FUNC_SRC)
 MAIN_OBJ = $(MAIN_SRC:.c=.o)
 
-TEST_SRC = tests/test.c src/server.c
+TEST_SRC = $(wildcard tests/*.c) $(FUNC_SRC)
 TEST_OBJ = $(TEST_SRC:.c=.o)
 
-main.out: $(MAIN_OBJ)
+server.out: $(MAIN_OBJ)
 	gcc -o $@ $^
 
 test.out: $(TEST_OBJ)
@@ -25,4 +27,4 @@ static-check:
 	cppcheck --enable=all --suppress=missingIncludeSystem .
 
 clean:
-	rm src/*.o test/*.o main.out test.out
+	rm $(MAIN_OBJ) $(TEST_OBJ) server.out test.out
