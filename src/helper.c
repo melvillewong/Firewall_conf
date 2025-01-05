@@ -1,4 +1,8 @@
 #include "../include/helper.h"
+#include "../include/cleaner.h"
+#include "../include/global.h"
+#include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,4 +28,55 @@ void split_argv_by_delimiter(char *input, char **fst_part, char **scd_part,
 
     (*fst_part)[fst_length] = '\0';
     (*scd_part)[scd_length] = '\0';
+}
+
+void handle_sig(int sig)
+{
+    switch (sig)
+    {
+        case SIGINT:
+            break;
+        case SIGHUP:
+            printf("Terminal closed. Cleaning up...\n");
+            free_memory();
+            if (input)
+            {
+                free(input);
+                input = NULL;
+            }
+            else if (result)
+            {
+                free(result);
+                result = NULL;
+            }
+            exit(0);
+        case SIGTERM:
+            printf("Cleaning up...\n");
+            free_memory();
+            if (input)
+            {
+                free(input);
+                input = NULL;
+            }
+            else if (result)
+            {
+                free(result);
+                result = NULL;
+            }
+            exit(0);
+        case SIGSEGV:
+            printf("Caught segmentation fault. Cleaning up...\n");
+            free_memory();
+            if (input)
+            {
+                free(input);
+                input = NULL;
+            }
+            else if (result)
+            {
+                free(result);
+                result = NULL;
+            }
+            exit(1);
+    }
 }

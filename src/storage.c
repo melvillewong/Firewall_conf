@@ -46,12 +46,13 @@ void store_rule(char *ips, char *ports)
 int store_query(char *ip, char *port)
 {
     Rule *rule_head_copy = rule_head;
+    Query *query_new = (Query *)malloc(sizeof(Query));
+
     while (rule_head_copy != NULL)
     {
         char *rule_ips = rule_head_copy->ips;
         char *rule_ports = rule_head_copy->ports;
         Query *query_head = rule_head_copy->query;
-        Query *query_new = (Query *)malloc(sizeof(Query));
 
         if (rule_ips != NULL && rule_ports != NULL)
         {
@@ -71,6 +72,8 @@ int store_query(char *ip, char *port)
         }
         rule_head_copy = rule_head_copy->next;
     }
+
+    free(query_new);
     return 0;
 }
 
@@ -101,7 +104,9 @@ int del_rule(char *ips, char *ports)
             rule_head_copy->query = NULL;
 
             free(rule_head_copy->ips);
+            rule_head_copy->ips = NULL;
             free(rule_head_copy->ports);
+            rule_head_copy->ports = NULL;
             free(rule_head_copy);
 
             return 1;

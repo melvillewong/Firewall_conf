@@ -24,21 +24,19 @@ int check_ip(const char *ip)
         return 0;
     }
 
-    printf("ip: [%s]\n", ip);
     // execute regex matching
     ret = regexec(&regex, ip, 0, NULL, 0);
     regfree(&regex);
 
-    printf("ret: %d\n", ret);
-    if (!ret)
+    if (ret)
     {
-        printf("Valid IP\n");
-    }
-    else
-    {
-        printf("Invalid IP\n");
+        // printf("Invalid IP\n");
         return 0;
     }
+    // else
+    // {
+    //     printf("Valid IP\n");
+    // }
 
     return 1;
 }
@@ -67,15 +65,15 @@ int check_port(const char *port)
     ret = regexec(&regex, port, 0, NULL, 0);
     regfree(&regex);
 
-    if (!ret)
+    if (ret)
     {
-        printf("Valid Port\n");
-    }
-    else
-    {
-        printf("Invalid Port\n");
+        // printf("Invalid Port\n");
         return 0;
     }
+    // else
+    // {
+    //     printf("Valid IP\n");
+    // }
 
     return 1;
 }
@@ -146,7 +144,7 @@ int is_valid_ip_port(char *value, Network_t ip_or_port)
     char *fst_value = NULL;
     char *scd_value = NULL;
 
-    printf("value: [%s]\n", value);
+    // printf("value: [%s]\n", value);
 
     // check format
     if (ip_or_port == IP)
@@ -157,7 +155,6 @@ int is_valid_ip_port(char *value, Network_t ip_or_port)
     {
         if (!check_port(value)) return 0;
     }
-    printf("passed format checking\n");
 
     // separate if ranged
     if (strchr(value, '-'))

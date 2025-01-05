@@ -1,5 +1,4 @@
 #include "../include/cleaner.h"
-#include "../include/global.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +13,9 @@ void free_queries(Rule *rule)
         query_copy = query_copy->next;
 
         free(query_temp->ip);
+        query_temp->ip = NULL;
         free(query_temp->port);
+        query_temp->port = NULL;
         free(query_temp);
     }
 }
@@ -54,7 +55,7 @@ int free_rule(char *ips, char *ports)
     return 0;
 }
 
-void free_lists()
+void free_memory()
 {
     Request *request_head_copy = request_head;
     Request *request_temp = NULL;
@@ -84,20 +85,4 @@ void free_lists()
         free(rule_temp);
     }
     rule_head = NULL;
-}
-
-void cleanup(int sig)
-{
-    printf("\nExiting program...\n");
-    if (input)
-    {
-        free(input);
-        input = NULL;
-    }
-    else if (result)
-    {
-        free(result);
-        result = NULL;
-    }
-    exit(0);
 }
