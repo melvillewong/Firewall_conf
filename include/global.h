@@ -1,6 +1,8 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#define BUFFER_SIZE 256
+
 typedef enum
 {
     IP,
@@ -22,6 +24,5 @@ typedef enum
 } Deleteion_t;
 
 extern char *input;
-extern char *result;
 
 #endif

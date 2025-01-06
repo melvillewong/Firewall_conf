@@ -1,6 +1,5 @@
 #include "../include/helper.h"
 #include "../include/cleaner.h"
-#include "../include/global.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,48 +34,20 @@ void handle_sig(int sig)
     switch (sig)
     {
         case SIGINT:
-            break;
+            printf("\n");
+            free_memory();
+            exit(0);
         case SIGHUP:
             printf("Terminal closed. Cleaning up...\n");
             free_memory();
-            if (input)
-            {
-                free(input);
-                input = NULL;
-            }
-            else if (result)
-            {
-                free(result);
-                result = NULL;
-            }
             exit(0);
         case SIGTERM:
             printf("Cleaning up...\n");
             free_memory();
-            if (input)
-            {
-                free(input);
-                input = NULL;
-            }
-            else if (result)
-            {
-                free(result);
-                result = NULL;
-            }
             exit(0);
         case SIGSEGV:
             printf("Caught segmentation fault. Cleaning up...\n");
             free_memory();
-            if (input)
-            {
-                free(input);
-                input = NULL;
-            }
-            else if (result)
-            {
-                free(result);
-                result = NULL;
-            }
             exit(1);
     }
 }

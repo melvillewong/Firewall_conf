@@ -21,3 +21,7 @@
     > Fixed
 
 > Completed Server Interactive mode with no memory leak
+
+2025-01-06
+
+- TODO: Test out any memory leak for running server with connection mode

@@ -144,8 +144,6 @@ int is_valid_ip_port(char *value, Network_t ip_or_port)
     char *fst_value = NULL;
     char *scd_value = NULL;
 
-    // printf("value: [%s]\n", value);
-
     // check format
     if (ip_or_port == IP)
     {

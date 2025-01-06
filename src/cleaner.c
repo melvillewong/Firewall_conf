@@ -1,4 +1,5 @@
 #include "../include/cleaner.h"
+#include "../include/global.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,4 +86,10 @@ void free_memory()
         free(rule_temp);
     }
     rule_head = NULL;
+
+    if (input)
+    {
+        free(input);
+        input = NULL;
+    }
 }

@@ -4,27 +4,28 @@
 #include "../include/global.h"
 #include "../include/helper.h"
 #include "../include/storage.h"
-#include <signal.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 char *input = NULL;
-char *result = NULL;
 
-void list_requests_cmd()
+void list_requests_cmd(char *result)
 {
     Request *request_head_copy = request_head;
 
     while (request_head_copy != NULL)
     {
-        printf("%s\n", request_head_copy->request);
-        // if (request_head_copy->next != NULL)
-        // {
-        //     printf("\n");
-        // }
+        snprintf(result + strlen(result), BUFFER_SIZE - strlen(result), "%s\n",
+                 request_head_copy->request);
         request_head_copy = request_head_copy->next;
+    }
+
+    size_t len = strlen(result);
+    if (len > 0 && result[len - 1] == '\n')
+    {
+        result[len - 1] = '\0';
     }
 }
 
@@ -115,7 +116,7 @@ Deleteion_t del_rule_cmd(char *rule)
 
     return result;
 }
-void list_rule_cmd()
+void list_rule_cmd(char *result)
 {
     if (rule_head == NULL) return;
 
@@ -125,20 +126,28 @@ void list_rule_cmd()
     {
         if (rule_head_copy->ips != NULL && rule_head_copy->ports != NULL)
         {
-            printf("Rule: %s %s\n", rule_head_copy->ips, rule_head_copy->ports);
+            snprintf(result + strlen(result), BUFFER_SIZE - strlen(result),
+                     "Rule: %s %s\n", rule_head_copy->ips,
+                     rule_head_copy->ports);
         }
 
         Query *query = rule_head_copy->query;
         while (query != NULL)
         {
-            printf("Query: %s %s\n", query->ip, query->port);
-            // if (query->next != NULL)
-            // {
-            //     printf("\n");
-            // }
+            if (strlen(result) < BUFFER_SIZE - 1)
+            {
+                snprintf(result + strlen(result), BUFFER_SIZE - strlen(result),
+                         "Query: %s %s\n", query->ip, query->port);
+            }
             query = query->next;
         }
         rule_head_copy = rule_head_copy->next;
+    }
+
+    size_t len = strlen(result);
+    if (len > 0 && result[len - 1] == '\n')
+    {
+        result[len - 1] = '\0';
     }
 }
 
@@ -146,13 +155,15 @@ char *process_cmd(char *request)
 {
     char *cmd = NULL;
     char *cmd_argv = NULL;
-    char *result = NULL;
+    char *result = (char *)malloc(BUFFER_SIZE);
+    result[0] = '\0';
 
     request[strcspn(request, "\n")] = '\0';
 
     if (strlen(request) == 0)
     {
-        return "Illegal request";
+        snprintf(result, BUFFER_SIZE, "Illegal request");
+        return result;
     }
 
     store_request(&request_head, &request_tail, request);
@@ -161,18 +172,17 @@ char *process_cmd(char *request)
     {
         if (strcmp(request, "R") == 0)
         {
-            list_requests_cmd();
-            return NULL;
+            list_requests_cmd(result);
         }
         else if (strcmp(request, "L") == 0)
         {
-            list_rule_cmd();
-            return NULL;
+            list_rule_cmd(result);
         }
         else
         {
-            return "Illegal request";
+            snprintf(result, BUFFER_SIZE, "Illegal request");
         }
+        return result;
     }
 
     split_argv_by_delimiter(request, &cmd, &cmd_argv, ' ');
@@ -181,7 +191,8 @@ char *process_cmd(char *request)
     {
         free(cmd);
         free(cmd_argv);
-        return "Invalid rule";
+        snprintf(result, BUFFER_SIZE, "Invalid rule");
+        return result;
     }
 
     // printf("cmd_argv: %s\n", cmd_argv);
@@ -189,11 +200,11 @@ char *process_cmd(char *request)
     {
         if (add_rule_cmd(cmd_argv))
         {
-            result = "Rule added";
+            snprintf(result, BUFFER_SIZE, "Rule added");
         }
         else
         {
-            result = "Invalid rule";
+            snprintf(result, BUFFER_SIZE, "Invalid rule");
         }
     }
     else if (strcmp(cmd, "C") == 0)
@@ -201,15 +212,16 @@ char *process_cmd(char *request)
         Connection_t outcome = connect_rule_cmd(cmd_argv);
         if (outcome == ACCEPTED)
         {
-            result = "Connection accepted";
+            snprintf(result, BUFFER_SIZE, "Connection accepted");
         }
         else if (outcome == REJECTED)
         {
-            result = "Connection rejected";
+            snprintf(result, BUFFER_SIZE, "Connection rejected");
         }
         else if (outcome == ILLEGAL)
         {
-            result = "Illegal IP address or port specified";
+            snprintf(result, BUFFER_SIZE,
+                     "Illegal IP address or port specified");
         }
     }
     else if (strcmp(cmd, "D") == 0)
@@ -217,20 +229,20 @@ char *process_cmd(char *request)
         Deleteion_t outcome = del_rule_cmd(cmd_argv);
         if (outcome == DELETED)
         {
-            result = "Rule deleted";
+            snprintf(result, BUFFER_SIZE, "Rule deleted");
         }
         else if (outcome == NOT_FOUND)
         {
-            result = "Rule not found";
+            snprintf(result, BUFFER_SIZE, "Rule not found");
         }
         else if (outcome == INVALID)
         {
-            result = "Rule invalid";
+            snprintf(result, BUFFER_SIZE, "Rule invalid");
         }
     }
     else
     {
-        result = "Illegal request";
+        snprintf(result, BUFFER_SIZE, "Illegal request");
     }
 
     free(cmd);
@@ -240,13 +252,8 @@ char *process_cmd(char *request)
 
 void interactive_mode()
 {
+    char *result = NULL;
     size_t n = 0;
-
-    // cleanup allocated memory for distinct exiting signal
-    signal(SIGINT, handle_sig);
-    signal(SIGHUP, handle_sig);
-    signal(SIGTERM, handle_sig);
-    signal(SIGSEGV, handle_sig);
 
     while (1)
     {
@@ -270,19 +277,11 @@ void interactive_mode()
         if (result != NULL && result[0] != '\0')
         {
             printf("%s\n", result);
+            free(result);
+            result = NULL;
         }
     }
 
     // free input when normal exit (^D)
-    if (input)
-    {
-        free((void *)input);
-        input = NULL;
-    }
-    else if (result)
-    {
-        free((void *)result);
-        result = NULL;
-    }
     free_memory();
 }
