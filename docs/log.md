@@ -18,3 +18,6 @@
 
 - TODO: Check out how to debug
 - Fix invalid IP and port (Entrypoint: `is_valid_ip_port`)
+    > Fixed
+
+> Completed Server Interactive mode with no memory leak

@@ -5,17 +5,26 @@
 - GCC compiler
 - Criterion (for unit testing)
 - TCP/IP networking tools (e.g., telnet, netcat for testing)
-- Docker (optional)
 
 ### Compilation
 
-To build the project:
+To build the project locally:
 
-```bash
-make
-```
+`make`
 
-### Running with Docker
+### Running Server Interactive Mode
+
+`./server.out -i`
+
+## Running with Docker (optional)
+
+### Prerequisites
+
+- Docker Desktop (or equivalent docker tools)
+
+### Initialise and Running Docker's Container
+
+#### Manually
 
 1. Run Docker Desktop
 2. `docker build -t i_firewall .`
@@ -27,10 +36,11 @@ make
     - `-it` = interactive mode
     - `--rm` = remove container after exit
 
+#### With script
+
+1. Run Docker Desktop
+2. `./runDocker.sh`
+
 ### Running Server Interactive Mode
 
-1. valgrind ./main.out -i
-
-### Testing
-
-`./test.out`
+`./server.out -i`
